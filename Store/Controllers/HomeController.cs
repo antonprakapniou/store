@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Store.Data;
+using Store.Utilities.Extensions;
 using Store.Data.Repositories.IRepositories;
+using Store.Models;
 using Store.Models.ViewModels;
 using System.Diagnostics;
 
@@ -40,6 +43,53 @@ namespace Store.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult Details(int id)
+        {
+            List<ShoppingCart> shoppingCartList = new();
+
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!=null
+                &&HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.Count()>0)
+            {
+                shoppingCartList=HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart)!;
+            }
+
+            DetailsViewModel detailsViewModel = new()
+            {
+                Product=_productRepo.FirstOrDefault(_ => _.Id==id, includeProperties: "Category"),
+                ExistsInCart=false
+            };
+
+            foreach (var shoppingCart in shoppingCartList)
+            {
+                if (shoppingCart.ProductId==id) detailsViewModel.ExistsInCart=true;
+            }
+
+            return View(detailsViewModel);
+        }
+
+        [HttpPost]
+        [ActionName("Details")]
+        public IActionResult DetailsPost(int id, DetailsViewModel detailsViewModel)
+        {
+            List<ShoppingCart> shoppingCartList = new();
+
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!=null
+                &&HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.Count()>0)
+            {
+                shoppingCartList=HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart)!;
+            }
+
+            shoppingCartList.Add(new ShoppingCart
+            {
+                ProductId = id,
+                Count=detailsViewModel.Product.Temp
+            });
+
+            TempData[WebConstants.Success]="Product added to cart";
+            HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
+            return RedirectToAction(nameof(Index));
         }
     }
 }
