@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Store.Data;
 
 namespace Store.Areas.Identity.Pages.Account
 {
@@ -25,6 +26,7 @@ namespace Store.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserStore<IdentityUser> _userStore;
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
@@ -32,12 +34,14 @@ namespace Store.Areas.Identity.Pages.Account
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
@@ -102,6 +106,12 @@ namespace Store.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+            if (!await _roleManager.RoleExistsAsync(WebConstants.AdminRole))
+            {
+                await _roleManager.CreateAsync(new(WebConstants.AdminRole));
+                await _roleManager.CreateAsync(new(WebConstants.CustomerRole));
+            }
+
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -120,6 +130,17 @@ namespace Store.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    //await _userManager.AddToRoleAsync(user,WebConstants.AdminRole);
+
+                    //if (User.IsInRole(WebConstants.AdminRole))
+                    //{
+                    //    await _userManager.AddToRoleAsync(user, WebConstants.AdminRole);
+                    //}
+                    //else
+                    //{
+                    //    await _userManager.AddToRoleAsync(user, WebConstants.CustomerRole);
+                    //}
+
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);
