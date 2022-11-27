@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Store.Data;
 using Store.Data.Repositories.IRepositories;
+using Store.Models;
 using Store.Models.ViewModels;
+using Store.Utilities.Extensions;
 using System.Data;
 
 namespace Store.Controllers
@@ -23,5 +25,41 @@ namespace Store.Controllers
         }
 
         public IActionResult Index() => View();
+
+        public IActionResult Details(int id)
+        {
+            InquiryViewModel=new()
+            {
+                InquiryHeader=_inquiryHeaderRepo.FirstOrDefault(_ => _.Id==id),
+                InquiryDetails=_inquiryDetailsRepo.FindAll(_ => _.InquiryHeaderId==id, includeProperties: "Product")
+            };
+
+            return View(InquiryViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Details")]
+        public IActionResult DetailsPost()
+        {
+            List<ShoppingCart> shoppingCarts = new();
+            InquiryViewModel!.InquiryDetails=_inquiryDetailsRepo.FindAll(_ => _.InquiryHeaderId==InquiryViewModel.InquiryHeader!.Id);
+
+            foreach (var detail in InquiryViewModel.InquiryDetails)
+            {
+                ShoppingCart shoppingCart = new()
+                {
+                    ProductId=detail.ProductId
+                };
+
+                shoppingCarts.Add(shoppingCart);
+            }
+
+            HttpContext.Session.Clear();
+            HttpContext.Session.Set(WebConstants.SessionCart, shoppingCarts);
+            HttpContext.Session.Set(WebConstants.SessionInquiry, InquiryViewModel.InquiryHeader!.Id);
+            TempData[WebConstants.Success]="Inquiry convert to cart successfully";
+            return RedirectToAction(nameof(Index), "Cart");
+        }
     }
 }
