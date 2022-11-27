@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Store.Data;
 using Store.Data.Repositories.IRepositories;
 using Store.Models;
 using Store.Models.ViewModels;
+using System.Data;
 
 namespace Store.Controllers
 {
+    [Authorize(Roles = WebConstants.AdminRole)]
     public class ProductController : Controller
     {
         private readonly IProductRepository _productRepo;

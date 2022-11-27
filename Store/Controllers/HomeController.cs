@@ -8,6 +8,7 @@ using System.Diagnostics;
 
 namespace Store.Controllers
 {
+    [RequireHttps]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
