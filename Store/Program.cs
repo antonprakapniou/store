@@ -30,6 +30,8 @@ builder.Services.AddSingleton<IBraintreeGate, BraintreeGate>();
 builder.Services.AddScoped<IUserRepository,UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+builder.Services.AddScoped<IInquiryHeaderRepository,InquiryHeaderRepository>();
+builder.Services.AddScoped<IInquiryDetailsRepository, InquiryDetailsRepository>();
 builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 {
     googleOptions.ClientId = googleAuthSection["client_id"]!;
