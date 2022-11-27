@@ -1,4 +1,4 @@
-namespace Store.Models
+namespace Store.Models.ViewModels
 {
     public class ErrorViewModel
     {
