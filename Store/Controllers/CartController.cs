@@ -259,5 +259,21 @@ namespace Store.Controllers
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCarts);
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult Remove(int id)
+        {
+            List<ShoppingCart> shoppingCartList = new();
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!=null
+                &&HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.Count()>0)
+            {
+                shoppingCartList=HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.ToList();
+            }
+
+            shoppingCartList.Remove(shoppingCartList.FirstOrDefault(_ => _.ProductId==id)!);
+            TempData[WebConstants.Success]="Product deleted from cart successfully";
+            HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
