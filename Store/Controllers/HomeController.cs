@@ -91,5 +91,22 @@ namespace Store.Controllers
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
             return RedirectToAction(nameof(Index));
         }
+
+        public IActionResult RemoveFromCart(int id)
+        {
+            List<ShoppingCart> shoppingCartList = new();
+
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!=null
+                &&HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.Count()>0)
+            {
+                shoppingCartList=HttpContext.Session.Get<List<ShoppingCart>>(WebConstants.SessionCart)!;
+            }
+
+            var shoppingCartToRemove = shoppingCartList.SingleOrDefault(_ => _.ProductId==id);
+            if (shoppingCartToRemove!=null) shoppingCartList.Remove(shoppingCartToRemove);
+
+            HttpContext.Session.Set(WebConstants.SessionCart, shoppingCartList);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
