@@ -44,5 +44,38 @@ namespace Store.Controllers
                 return View(category);
             }
         }
+
+        public IActionResult Update(int? id)
+        {
+            if (id>0)
+            {
+                var category = _categoryRepo.Find(id.GetValueOrDefault());
+
+                if (category==null) return NotFound();
+                else return View(category);
+            }
+
+            else return NotFound();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Update")]
+        public IActionResult Update(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _categoryRepo.Update(category);
+                _categoryRepo.Save();
+                TempData[WebConstants.Success]="Category updated successfully";
+                return RedirectToAction(nameof(Index));
+            }
+
+            else
+            {
+                TempData[WebConstants.Error]="Error while updating category";
+                return View(category);
+            }
+        }
     }
 }
