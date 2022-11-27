@@ -243,5 +243,21 @@ namespace Store.Controllers
             HttpContext.Session.Clear();
             return View(orderHeader);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Update")]
+        public IActionResult UpdatePost(IEnumerable<Product> products)
+        {
+            List<ShoppingCart> shoppingCarts = new();
+
+            foreach (var product in products)
+            {
+                shoppingCarts.Add(new ShoppingCart { ProductId=product.Id, Count=product.Temp });
+            }
+
+            HttpContext.Session.Set(WebConstants.SessionCart, shoppingCarts);
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
