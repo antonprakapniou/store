@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Store.Data;
 using Store.Data.Repositories.IRepositories;
 using Store.Models;
-using System.Data;
 
 namespace Store.Controllers
 {
