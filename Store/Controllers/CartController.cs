@@ -9,6 +9,9 @@ using Braintree;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Text;
 
 namespace Store.Controllers
 {
@@ -75,6 +78,7 @@ namespace Store.Controllers
         [ActionName("Index")]
         public IActionResult IndexPost(IEnumerable<Product> products)
         {
+            bool userIsAdmin = User.IsInRole(WebConstants.AdminRole);            
             List<ShoppingCart> shoppingCarts = new();
 
             foreach (var product in products)
@@ -83,7 +87,88 @@ namespace Store.Controllers
             }
 
             HttpContext.Session.Set(WebConstants.SessionCart, shoppingCarts);
-            return RedirectToAction(nameof(Summary));
+
+            if (userIsAdmin)
+            {
+                return RedirectToAction(nameof(SummaryForAdmin));
+            }
+
+            else
+            {
+                return RedirectToAction(nameof(Summary));
+            }
+
+        }
+
+        public IActionResult SummaryForAdmin()
+        {
+            IdentityUser? identityUser = default;
+            bool userIsAdmin = User.IsInRole(WebConstants.AdminRole);
+
+            if (HttpContext.Session.Get<int>(WebConstants.SessionInquiry)!=0)
+            {
+                InquiryHeader inquiryHeader = _inquiryHeaderRepo.FirstOrDefault(_ => _.Id==HttpContext.Session.Get<int>(WebConstants.SessionInquiry));
+                identityUser=new()
+                {
+                    Email=inquiryHeader.Email,
+                };
+            }
+
+            else identityUser=new();
+
+            var gateway = _braintree.GetGateway();
+            var clientToken = gateway.ClientToken.Generate();
+            ViewBag.ClientToken = clientToken;
+
+            //if (userIsAdmin)
+            //{
+            //    if (HttpContext.Session.Get<int>(WebConstants.SessionInquiry)!=0)
+            //    {
+            //        InquiryHeader inquiryHeader = _inquiryHeaderRepo.FirstOrDefault(_ => _.Id==HttpContext.Session.Get<int>(WebConstants.SessionInquiry));
+            //        identityUser=new()
+            //        {
+            //            Email=inquiryHeader.Email,
+            //        };
+            //    }
+
+            //    else identityUser=new();
+
+            //    var gateway = _braintree.GetGateway();
+            //    var clientToken = gateway.ClientToken.Generate();
+            //    ViewBag.ClientToken = clientToken;
+            //}
+
+            //else
+            //{
+            //    var claimsIdentity = (ClaimsIdentity)User.Identity!;
+            //    var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            //    identityUser=_userRepo.FirstOrDefault(_ => _.Id==claim!.Value);
+            //}
+
+            List<ShoppingCart> shoppingCartList = new();
+
+            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!=null
+                &&HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.Count()>0)
+            {
+                shoppingCartList=HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.ToList();
+            }
+
+            List<int> productInCart = shoppingCartList.Select(_ => _.ProductId).ToList();
+            IEnumerable<Product> productList = _productRepo.FindAll(_ => productInCart.Contains(_.Id));
+
+            ProductUserViewModel =new()
+            {
+                User=identityUser,
+            };
+
+            foreach (var item in shoppingCartList)
+            {
+                Product product = _productRepo.FirstOrDefault(_ => _.Id==item.ProductId);
+                product.Temp=item.Count;
+                ProductUserViewModel.ProductList!.Add(product);
+            }
+
+            return View(ProductUserViewModel);
         }
 
         public IActionResult Summary()
@@ -148,9 +233,9 @@ namespace Store.Controllers
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity!;
             var claim = claimsIdentity!.FindFirst(ClaimTypes.NameIdentifier);
-            bool userIaAdmin = User.IsInRole(WebConstants.AdminRole);
+            bool userIsAdmin = User.IsInRole(WebConstants.AdminRole);
 
-            if (userIaAdmin)
+            if (userIsAdmin)
             {
                 OrderHeader orderHeader = new()
                 {

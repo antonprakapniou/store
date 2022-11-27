@@ -4,7 +4,6 @@
 @model ProductUserViewModel
 
 @{
-    bool userIsAdmin = User.IsInRole(WebConstants.AdminRole);
     double totalPrice = default;
 }
 
@@ -56,34 +55,48 @@
                                             <li class="list-group-item d-flex justify-content-between">
                                                 <div>
                                                     <h6 class="my-0">@Model.ProductList![i].Name</h6>
-                                                    @if (userIsAdmin)
+                                                    <small class="text-muted">@Model.ProductList[i].Temp</small>
+                                                    @*@if (userIsAdmin)
                                                     {
                                                         <small class="text-muted">@Model.ProductList[i].Temp</small>
                                                     }
                                                     else
                                                     {
                                                         <small class="text-muted">@Model.ProductList[i].Price.ToString("c")</small>
-                                                    }
+                                                    }*@
                                                 </div>
-                                                @if (userIsAdmin)
+                                                <span class="text-muted">
+                                                    @((Model.ProductList[i].Price*Model.ProductList[i].Temp).ToString("c"))
+                                                </span>
+                                                @*@if (userIsAdmin)
                                                 {
                                                     <span class="text-muted">
                                                         @((Model.ProductList[i].Price*Model.ProductList[i].Temp).ToString("c"))
                                                     </span>
-                                                }
+                                                }*@
                                             </li>
                                             totalPrice += Model.ProductList[i].Price * Model.ProductList[i].Temp;
                                         }
-                                        @if (userIsAdmin)
+                                        <li class="list-group-item d-flex justify-content-between bg-light">
+                                            <small class="text-info">Total Price</small>
+                                            <strong class="text-info">@totalPrice.ToString("c")</strong>
+                                        </li>
+                                        @*@if (userIsAdmin)
                                         {
                                             <li class="list-group-item d-flex justify-content-between bg-light">
-                                                <small class="text-info">Total Price</small> 
+                                                <small class="text-info">Total Price</small>
                                                 <strong class="text-info">@totalPrice.ToString("c")</strong>
-                                            </li>    
-                                        }
+                                            </li>
+                                        }*@
                                     </ul>
                                 </div>
-                                @if (userIsAdmin)
+                                <div class="col-12">
+                                    <div class="container">
+                                        <div id="dropin-container"></div>
+                                        <input id="nonce" name="payment_method_nonce" type="hidden" />
+                                    </div>
+                                </div>
+                                @*@if (userIsAdmin)
                                 {
                                     <div class="col-12">
                                         <div class="container">
@@ -91,7 +104,7 @@
                                             <input id="nonce" name="payment_method_nonce" type="hidden" />
                                         </div>
                                     </div>
-                                }
+                                }*@
                             </div>
                         </div>
                     </div>
@@ -99,14 +112,15 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-12 col-md-5 offset-md-7">
-                            @if (userIsAdmin)
+                            <button class="btn btn-success form-control" id="submit-button">Submit Order</button>
+                            @*@if (userIsAdmin)
                             {
                                 <button class="btn btn-success form-control" id="submit-button">Submit Order</button>
                             }
                             else
                             {
                                 <button type="submit" class="btn btn-primary form-control">Submit Inquiry</button>
-                            }
+                            }*@
                         </div>
                     </div>
                 </div>
@@ -126,18 +140,18 @@
         braintree.dropin.create({
             authorization: client_token,
             container: '#dropin-container'
-            },function (createErr, instance) {
-                form.addEventListener('submit', function () {
-                    event.preventDefault();
-                    instance.requestPaymentMethod(function (err, payload) {
-                        document.querySelector('#nonce').value = payload.nonce;
-                        form.submit();
-                    });
+        }, function (createErr, instance) {
+            form.addEventListener('submit', function () {
+                event.preventDefault();
+                instance.requestPaymentMethod(function (err, payload) {
+                    document.querySelector('#nonce').value = payload.nonce;
+                    form.submit();
                 });
+            });
         });
 
         function validateInput() {
-            var user_email = document.getElementById("User_Email").value;            
+            var user_email = document.getElementById("User_Email").value;
             if (user_email.toString() == '') {
                 Swal.fire({
                     icon: 'error',
@@ -148,5 +162,5 @@
             }
             return true;
         }
-   </script>
+    </script>
 }
