@@ -48,7 +48,8 @@ namespace Store.Controllers
             {
                 ShoppingCart shoppingCart = new()
                 {
-                    ProductId=detail.ProductId
+                    ProductId=detail.ProductId,
+                    Count=1
                 };
 
                 shoppingCarts.Add(shoppingCart);

@@ -230,60 +230,60 @@ namespace Store.Controllers
             return View(ProductUserViewModel);
         }
 
-        public IActionResult Summary()
-        {
-            IdentityUser? identityUser = default;
-            bool userIsAdmin = User.IsInRole(WebConstants.AdminRole);
+        //public IActionResult Summary()
+        //{
+        //    IdentityUser? identityUser = default;
+        //    bool userIsAdmin = User.IsInRole(WebConstants.AdminRole);
 
-            if (userIsAdmin)
-            {
-                if (HttpContext.Session.Get<int>(WebConstants.SessionInquiry)!=0)
-                {
-                    InquiryHeader inquiryHeader = _inquiryHeaderRepo.FirstOrDefault(_ => _.Id==HttpContext.Session.Get<int>(WebConstants.SessionInquiry));
-                    identityUser=new()
-                    {
-                        Email=inquiryHeader.Email,
-                    };
-                }
+        //    if (userIsAdmin)
+        //    {
+        //        if (HttpContext.Session.Get<int>(WebConstants.SessionInquiry)!=0)
+        //        {
+        //            InquiryHeader inquiryHeader = _inquiryHeaderRepo.FirstOrDefault(_ => _.Id==HttpContext.Session.Get<int>(WebConstants.SessionInquiry));
+        //            identityUser=new()
+        //            {
+        //                Email=inquiryHeader.Email,
+        //            };
+        //        }
 
-                else identityUser=new();
+        //        else identityUser=new();
 
-                var gateway = _braintree.GetGateway();
-                var clientToken = gateway.ClientToken.Generate();
-                ViewBag.ClientToken = clientToken;
-            }
+        //        var gateway = _braintree.GetGateway();
+        //        var clientToken = gateway.ClientToken.Generate();
+        //        ViewBag.ClientToken = clientToken;
+        //    }
 
-            else
-            {
-                var claimsIdentity = (ClaimsIdentity)User.Identity!;
-                var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-                identityUser=_userRepo.FirstOrDefault(_ => _.Id==claim!.Value);
-            }
-            List<ShoppingCart> shoppingCartList = new();
+        //    else
+        //    {
+        //        var claimsIdentity = (ClaimsIdentity)User.Identity!;
+        //        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+        //        identityUser=_userRepo.FirstOrDefault(_ => _.Id==claim!.Value);
+        //    }
+        //    List<ShoppingCart> shoppingCartList = new();
 
-            if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!=null
-                &&HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.Count()>0)
-            {
-                shoppingCartList=HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.ToList();
-            }
+        //    if (HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!=null
+        //        &&HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.Count()>0)
+        //    {
+        //        shoppingCartList=HttpContext.Session.Get<IEnumerable<ShoppingCart>>(WebConstants.SessionCart)!.ToList();
+        //    }
 
-            List<int> productInCart = shoppingCartList.Select(_ => _.ProductId).ToList();
-            IEnumerable<Product> productList = _productRepo.FindAll(_ => productInCart.Contains(_.Id));
+        //    List<int> productInCart = shoppingCartList.Select(_ => _.ProductId).ToList();
+        //    IEnumerable<Product> productList = _productRepo.FindAll(_ => productInCart.Contains(_.Id));
 
-            ProductUserViewModel =new()
-            {
-                User=identityUser,
-            };
+        //    ProductUserViewModel =new()
+        //    {
+        //        User=identityUser,
+        //    };
 
-            foreach (var item in shoppingCartList)
-            {
-                Product product = _productRepo.FirstOrDefault(_ => _.Id==item.ProductId);
-                product.Temp=item.Count;
-                ProductUserViewModel.ProductList!.Add(product);
-            }
+        //    foreach (var item in shoppingCartList)
+        //    {
+        //        Product product = _productRepo.FirstOrDefault(_ => _.Id==item.ProductId);
+        //        product.Temp=item.Count;
+        //        ProductUserViewModel.ProductList!.Add(product);
+        //    }
 
-            return View(ProductUserViewModel);
-        }
+        //    return View(ProductUserViewModel);
+        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
