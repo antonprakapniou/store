@@ -32,6 +32,8 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
 builder.Services.AddScoped<IInquiryHeaderRepository,InquiryHeaderRepository>();
 builder.Services.AddScoped<IInquiryDetailsRepository, InquiryDetailsRepository>();
+builder.Services.AddScoped<IOrderHeaderRepository,OrderHeaderRepository>();
+builder.Services.AddScoped<IOrderDetailsRepository,OrderDetailsRepository>();
 builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 {
     googleOptions.ClientId = googleAuthSection["client_id"]!;
