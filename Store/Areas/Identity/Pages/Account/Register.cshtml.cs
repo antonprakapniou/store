@@ -132,14 +132,14 @@ namespace Store.Areas.Identity.Pages.Account
                 {
                     //await _userManager.AddToRoleAsync(user,WebConstants.AdminRole);
 
-                    //if (User.IsInRole(WebConstants.AdminRole))
-                    //{
-                    //    await _userManager.AddToRoleAsync(user, WebConstants.AdminRole);
-                    //}
-                    //else
-                    //{
-                    //    await _userManager.AddToRoleAsync(user, WebConstants.CustomerRole);
-                    //}
+                    if (User.IsInRole(WebConstants.AdminRole))
+                    {
+                        await _userManager.AddToRoleAsync(user, WebConstants.AdminRole);
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, WebConstants.CustomerRole);
+                    }
 
                     _logger.LogInformation("User created a new account with password.");
 

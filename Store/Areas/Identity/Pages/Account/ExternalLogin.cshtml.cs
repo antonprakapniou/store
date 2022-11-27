@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Store.Data;
 
 namespace Store.Areas.Identity.Pages.Account
 {
@@ -162,6 +163,17 @@ namespace Store.Areas.Identity.Pages.Account
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
+                        //await _userManager.AddToRoleAsync(user,WebConstants.AdminRole);
+
+                        if (User.IsInRole(WebConstants.AdminRole))
+                        {
+                            await _userManager.AddToRoleAsync(user, WebConstants.AdminRole);
+                        }
+                        else
+                        {
+                            await _userManager.AddToRoleAsync(user, WebConstants.CustomerRole);
+                        }
+
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                         var userId = await _userManager.GetUserIdAsync(user);
