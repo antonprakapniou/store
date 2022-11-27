@@ -22,5 +22,27 @@ namespace Store.Controllers
             IEnumerable<Category> categories = _categoryRepo.FindAll();
             return View(categories);
         }
+
+        public IActionResult Create() => View();
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Create")]
+        public IActionResult Create(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _categoryRepo.Add(category);
+                _categoryRepo.Save();
+                TempData[WebConstants.Success]="Category created successfully";
+                return RedirectToAction(nameof(Index));
+            }
+
+            else
+            {
+                TempData[WebConstants.Error]="Error while creating category";
+                return View(category);
+            }
+        }
     }
 }
