@@ -116,5 +116,47 @@ namespace Store.Controllers
                 return View(productViewModel);
             }
         }
+
+        public IActionResult Delete(int? id)
+        {
+            bool productNotExists = id==null||id==0;
+
+            if (productNotExists) return NotFound();
+            else
+            {
+                var productFromDb = _productRepo.FirstOrDefault(_ => _.Id==id, includeProperties: "Category");
+                bool productFromDbNotFound = id==null;
+
+                if (productFromDbNotFound) return NotFound();
+                else return View(productFromDb);
+            }
+        }
+
+        [HttpPost]
+        [ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeletePost(int? id)
+        {
+            var productFromDb = _productRepo.Find(id.GetValueOrDefault());
+            bool productFromDbNotFound = id==null;
+
+            if (productFromDbNotFound)
+            {
+                TempData[WebConstants.Error]="Error while deleting product";
+                return NotFound();
+            }
+
+            else
+            {
+                string upload = _webHostEnvironment.WebRootPath+WebConstants.ImagePath;
+                var oldFile = Path.Combine(upload, productFromDb!.ImagePath!);
+
+                if (System.IO.File.Exists(oldFile)) System.IO.File.Delete(oldFile);
+                _productRepo.Remove(productFromDb);
+                _productRepo.Save();
+                TempData[WebConstants.Success]="Product deleted successfully";
+                return RedirectToAction(nameof(Index));
+            }
+        }
     }
 }
