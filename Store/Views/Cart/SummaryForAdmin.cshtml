@@ -4,6 +4,7 @@
 @model ProductUserViewModel
 
 @{
+    //bool userIsAdmin = User.IsInRole(WebConstants.AdminRole);
     double totalPrice = default;
 }
 
@@ -112,7 +113,7 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-12 col-md-5 offset-md-7">
-                            <button class="btn btn-success form-control" id="submit-button">Submit Order</button>
+                            <button class="btn btn-success form-control" onclick="return validateInput()" id="submit-button">Submit Order</button>
                             @*@if (userIsAdmin)
                             {
                                 <button class="btn btn-success form-control" id="submit-button">Submit Order</button>
