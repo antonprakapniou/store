@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Store.Data;
+using Store.Data.Repositories;
+using Store.Data.Repositories.IRepositories;
 using Store.Utilities.Braintree;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +27,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.Sign
     .AddEntityFrameworkStores<AppDbContext>();
 builder.Services.Configure<BraintreeSettings>(brainTreeSection);
 builder.Services.AddSingleton<IBraintreeGate, BraintreeGate>();
-
+builder.Services.AddScoped<IUserRepository,UserRepository>();
 builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 {
     googleOptions.ClientId = googleAuthSection["client_id"]!;
