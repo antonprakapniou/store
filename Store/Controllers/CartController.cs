@@ -8,9 +8,11 @@ using Store.Utilities.Extensions;
 using Braintree;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Store.Controllers
 {
+    [Authorize]
     public class CartController : Controller
     {
         private readonly ICategoryRepository _categoryRepo;

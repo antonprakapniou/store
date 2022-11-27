@@ -5,7 +5,6 @@ using Store.Data.Repositories.IRepositories;
 using Store.Models;
 using Store.Models.ViewModels;
 using Store.Utilities.Extensions;
-using System.Data;
 
 namespace Store.Controllers
 {
@@ -61,5 +60,22 @@ namespace Store.Controllers
             TempData[WebConstants.Success]="Inquiry convert to cart successfully";
             return RedirectToAction(nameof(Index), "Cart");
         }
+
+        [HttpPost]
+        public IActionResult Delete()
+        {
+            InquiryHeader inquiryHeader = _inquiryHeaderRepo.FirstOrDefault(_ => _.Id == InquiryViewModel!.InquiryHeader!.Id);
+            IEnumerable<InquiryDetails> inquiryDetails = _inquiryDetailsRepo.FindAll(_ => _.InquiryHeaderId == InquiryViewModel!.InquiryHeader!.Id);
+            _inquiryDetailsRepo.RemoveRange(inquiryDetails);
+            _inquiryHeaderRepo.Remove(inquiryHeader);
+            _inquiryHeaderRepo.Save();
+            TempData[WebConstants.Success] = "Inquiry deleted successfully";
+            return RedirectToAction(nameof(Index));
+        }
+
+        #region API CALLS
+        [HttpGet]
+        public IActionResult GetInquiryList() => Json(new { data = _inquiryHeaderRepo.FindAll() });
+        #endregion
     }
 }
