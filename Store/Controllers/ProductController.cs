@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Store.Data;
 using Store.Data.Repositories.IRepositories;
 using Store.Models;
+using Store.Models.ViewModels;
 
 namespace Store.Controllers
 {
@@ -20,6 +22,99 @@ namespace Store.Controllers
             IEnumerable<Product> products = _productRepo.FindAll(includeProperties: "Category");
 
             return View(products);
+        }
+
+        public IActionResult Upsert(int? id)
+        {
+            ProductViewModel productViewModel = new()
+            {
+                Product=new(),
+                CategorySelectList=_productRepo.GetSelectListItems(WebConstants.CategoryName)
+            };
+
+            bool productNotExists = id==null;
+
+            if (productNotExists) return View(productViewModel);
+            else
+            {
+                productViewModel.Product=_productRepo.Find(id.GetValueOrDefault());
+                bool productIsFounded = productViewModel.Product==null;
+
+                if (productIsFounded) return NotFound();
+                return View(productViewModel);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Upsert(ProductViewModel productViewModel)
+        {
+            bool productIsValid = ModelState.IsValid;
+
+            if (productIsValid)
+            {
+                var files = HttpContext.Request.Form.Files;
+                string webRootPath = _webHostEnvironment.WebRootPath;
+
+                if (productViewModel.Product!.Id==0)
+                {
+                    string upload = webRootPath+WebConstants.ImagePath;
+                    string fileName = Guid.NewGuid().ToString();
+                    string extension = Path.GetExtension(files[0].FileName);
+                    string fullFileName = fileName+extension;
+
+                    using (var fileStream = new FileStream(Path.Combine(upload, fullFileName), FileMode.Create))
+                    {
+                        files[0].CopyTo(fileStream);
+                    }
+
+                    productViewModel.Product.ImagePath=fullFileName;
+                    _productRepo.Add(productViewModel.Product);
+                    TempData[WebConstants.Success]="Product created successfully";
+                }
+
+                else
+                {
+                    var productFromDb = _productRepo.FirstOrDefault(
+                        _ => _.Id==productViewModel.Product.Id,
+                        isTracking: false);
+
+                    if (files.Count>0)
+                    {
+                        string upload = webRootPath+WebConstants.ImagePath;
+                        string fileName = Guid.NewGuid().ToString();
+                        string extension = Path.GetExtension(files[0].FileName);
+                        string fullFileName = fileName+extension;
+
+                        var oldFile = Path.Combine(upload, productFromDb!.ImagePath!);
+
+                        if (System.IO.File.Exists(oldFile)) System.IO.File.Delete(oldFile);
+
+                        using (var fileStream = new FileStream(Path.Combine(upload, fullFileName), FileMode.Create))
+                        {
+                            files[0].CopyTo(fileStream);
+                        }
+
+                        productViewModel.Product.ImagePath=fullFileName;
+                    }
+
+                    else productViewModel.Product.ImagePath=productFromDb!.ImagePath!;
+
+                    _productRepo.Update(productViewModel.Product);
+                    TempData[WebConstants.Success]="Product updated successfully";
+                }
+
+                _productRepo.Save();
+                return RedirectToAction(nameof(Index));
+            }
+
+            else
+            {
+                productViewModel.CategorySelectList=_productRepo.GetSelectListItems(WebConstants.CategoryName);
+                TempData[WebConstants.Error]="Error while creating/updating product";
+
+                return View(productViewModel);
+            }
         }
     }
 }
