@@ -205,7 +205,7 @@ namespace Store.Controllers
 
                 _orderHeaderRepo.Save();
 
-                return RedirectToAction(nameof(Index), new { id = orderHeader.Id });
+                return RedirectToAction(nameof(Confirm), new { id = orderHeader.Id });
             }
             else
             {
@@ -234,7 +234,14 @@ namespace Store.Controllers
                 TempData[WebConstants.Success]="Inquiry created successfully";
             }
 
-            return RedirectToAction(nameof(Index));
-        }        
+            return RedirectToAction(nameof(Confirm));
+        }
+
+        public IActionResult Confirm(int id = 0)
+        {
+            OrderHeader orderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id==id);
+            HttpContext.Session.Clear();
+            return View(orderHeader);
+        }
     }
 }

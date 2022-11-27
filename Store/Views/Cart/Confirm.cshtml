@@ -1,0 +1,19 @@
+﻿@model OrderHeader
+
+@{
+    bool modelIsValid = Model != null;
+}
+
+@if (modelIsValid)
+{
+    <h1 class="text-info"> Order Created</h1>
+    <p>Order #@Model!.Id has been created successfully!</p>
+}
+else
+{
+    <p>need to come up with something</p>    
+}
+
+<div class="col-6 text-end">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-info btn-sm">Home</a>
+</div>
