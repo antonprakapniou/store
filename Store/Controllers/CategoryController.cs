@@ -77,5 +77,39 @@ namespace Store.Controllers
                 return View(category);
             }
         }
+
+        public IActionResult Delete(int? id)
+        {
+            if (id>0)
+            {
+                var category = _categoryRepo.Find(id.GetValueOrDefault());
+
+                if (category==null) return NotFound();
+                else return View(category);
+            }
+
+            else return NotFound();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [ActionName("Delete")]
+        public IActionResult DeletePost(int? id)
+        {
+            var category = _categoryRepo.Find(id.GetValueOrDefault());
+            if (category==null)
+            {
+                TempData[WebConstants.Error]="Error while deleting category";
+                return NotFound();
+            }
+
+            else
+            {
+                _categoryRepo.Remove(category);
+                _categoryRepo.Save();
+                TempData[WebConstants.Success]="Category deleted successfully";
+                return RedirectToAction(nameof(Index));
+            }
+        }
     }
 }
