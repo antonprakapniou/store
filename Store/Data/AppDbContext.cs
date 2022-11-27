@@ -10,6 +10,8 @@ namespace Store.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<InquiryHeader> InquiryHeaders { get; set; }
         public DbSet<InquiryDetails> InquiryDetails { get; set; }
+        public DbSet<OrderHeader> OrderHeaders { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     }
