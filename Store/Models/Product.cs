@@ -25,7 +25,7 @@ namespace Store.Models
         public string? ImagePath { get; set; }
 
         [NotMapped]
-        [Range(1, 10000)]
+        [Range(1, 10000,ErrorMessage ="Count must be greater than 0")]
         public int Temp { get; set; }
 
         public Product()
