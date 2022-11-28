@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Store.Data;
 using Store.Data.Repositories.IRepositories;
+using Store.Models;
 using Store.Models.ViewModels;
 using Store.Utilities.Braintree;
 
@@ -60,6 +61,16 @@ namespace Store.Controllers
             };
 
             return View(OrderViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult StartProcessing()
+        {
+            OrderHeader orderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id == OrderViewModel!.OrderHeader!.Id);
+            orderHeader.OrderStatus = WebConstants.StatusInProcess;
+            _orderHeaderRepo.Save();
+            TempData[WebConstants.Success] = "Order is In Process";
+            return RedirectToAction(nameof(Index));
         }
     }
 }
