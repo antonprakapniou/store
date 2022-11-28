@@ -12,6 +12,9 @@ namespace Store.Controllers
         private readonly IOrderDetailsRepository _orderDetailsRepo;
         private readonly IBraintreeGate _braintree;
 
+        [BindProperty]
+        public OrderViewModel? OrderViewModel { get; set; }
+
         public OrderController(
             IOrderHeaderRepository orderHeaderRepo,
             IOrderDetailsRepository orderDetailsRepo,
@@ -46,6 +49,17 @@ namespace Store.Controllers
             }
 
             return View(orderListViewModel);
+        }
+
+        public IActionResult Details(int id)
+        {
+            OrderViewModel = new()
+            {
+                OrderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id == id),
+                OrderDetails = _orderDetailsRepo.FindAll(_ => _.OrderHeaderId == id, includeProperties: "Product")
+            };
+
+            return View(OrderViewModel);
         }
     }
 }
