@@ -161,8 +161,16 @@ namespace Store.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        if (User.IsInRole(WebConstants.AdminRole))
+                        {
+                            TempData[WebConstants.Success] = user.Email + " has been registered";
+                            return RedirectToAction("Index", "Home");
+                        }
+                        else
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: false);
+                            return LocalRedirect(returnUrl);
+                        }
                     }
                 }
                 foreach (var error in result.Errors)

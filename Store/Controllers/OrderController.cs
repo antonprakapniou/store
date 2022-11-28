@@ -1,4 +1,5 @@
 ﻿using Braintree;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Store.Data;
 using Store.Data.Repositories.IRepositories;
@@ -8,6 +9,7 @@ using Store.Utilities.Braintree;
 
 namespace Store.Controllers
 {
+    [Authorize(Roles =WebConstants.AdminRole)]
     public class OrderController : Controller
     {
         private readonly IOrderHeaderRepository _orderHeaderRepo;
@@ -88,7 +90,7 @@ namespace Store.Controllers
         [HttpPost]
         public IActionResult CancelOrder()
         {
-            OrderHeader orderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id == OrderViewModel!.OrderHeader.Id);
+            OrderHeader orderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id == OrderViewModel!.OrderHeader!.Id);
 
             var gateway = _braintree.GetGateway();
             Transaction transaction = gateway.Transaction.Find(orderHeader.TransactionId);
