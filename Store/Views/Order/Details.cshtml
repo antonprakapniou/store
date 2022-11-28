@@ -10,7 +10,7 @@
         <div class="card">
             <div class="card-header bg-dark text-light ml-0 row container">
                 <div class="col-12 d-none d-md-block col-md-6 pb-1">
-                    <i class="fas fa-shopping-cart"></i>&nbsp;Order Summary
+                    <i class="fas fa-shopping-cart"></i> &nbsp; Order Summary
                 </div>
                 <div class="col-12 col-md-4 offset-md-2 text-right">
                     <a asp-controller="Order" asp-action="Index" class="btn btn-outline-info form-control btn-sm">Back to Orders</a>
@@ -23,7 +23,8 @@
                             <div class="row">
                                 <h4 class="d-flex justify-content-between align-items-center mb-3">
                                     <span class="text-info">Order Details:</span>
-                                </h4>                            
+                                </h4>
+                            </div>                            
                             <div class="row my-1">
                                 <div class="col-3">Email</div>
                                 <div class="col-9">
@@ -37,12 +38,14 @@
                                     <input value="@Model.OrderHeader!.OrderDate.ToShortDateString()" type="text" class="form-control" readonly />
                                 </div>
                             </div>
+
                             <div class="row my-1">
                                 <div class="col-3">Shipping Date</div>
                                 <div class="col-9">
                                     <input value="@Model.OrderHeader.ShippingDate.ToShortDateString()" id="shippingDate" type="text" readonly class="form-control" />
                                 </div>
                             </div>
+
                             <div class="row my-1">
                                 <div class="col-3">Transaction ID</div>
                                 <div class="col-9">
@@ -61,6 +64,8 @@
                                            asp-action="UpdateOrderDetails" formmethod="post" />
                                 </div>
                             </div>
+
+
                         </div>
                         <div class="col-12 col-lg-5 offset-lg-1">
                             <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -73,11 +78,11 @@
                                         <div class="row container">
                                             <div class="col-8">
                                                 <h6 class="my-0 text-info">@detail.Product!.Name</h6>
-                                                <small class="text-muted">Price : @detail.Price</small><br />
-                                                <small class="text-muted">Count : @detail.Count</small>
+                                                <small class="text-muted">Price:&nbsp;@detail.Price.ToString("c")</small><br />
+                                                <small class="text-muted">Count:&nbsp;@detail.Count</small>
                                             </div>
                                             <div class="col-4">
-                                                <p class="text-success">$@(detail.Price * detail.Count)</p>
+                                                <p class="text-success">@((detail.Price * detail.Count).ToString("c"))</p>
                                             </div>
                                         </div>
                                     </li>
@@ -92,7 +97,6 @@
                                         </div>
                                     </div>
                                 </li>
-
                             </ul>
 
                             <br />
@@ -103,14 +107,14 @@
                                    formmethod="post" asp-action="StartProcessing"
                                    class="btn btn-info form-control" />
                             }
-                                @if (Model.OrderHeader.OrderStatus == WebConstants.StatusInProcess)
+                            @if (Model.OrderHeader.OrderStatus == WebConstants.StatusInProcess)
                             {
                                 <input type="submit" value="Ship Order"
                                    formmethod="post" asp-action="ShipOrder"
                                    class="btn btn-primary form-control" />
                             }
-                                @if (Model.OrderHeader.OrderStatus != WebConstants.StatusRefunded
-                                && Model.OrderHeader.OrderStatus != WebConstants.StatusCancelled)
+                            @if (Model.OrderHeader.OrderStatus != WebConstants.StatusRefunded
+                            && Model.OrderHeader.OrderStatus != WebConstants.StatusCancelled)
                             {
                                 <div class="pt-2">
                                     <button type="submit"
@@ -122,10 +126,10 @@
                                 </div>
                             }
                         </div>
+
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </form>
