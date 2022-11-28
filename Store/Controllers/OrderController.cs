@@ -88,7 +88,7 @@ namespace Store.Controllers
         [HttpPost]
         public IActionResult CancelOrder()
         {
-            OrderHeader orderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id == OrderViewModel.OrderHeader.Id);
+            OrderHeader orderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id == OrderViewModel!.OrderHeader.Id);
 
             var gateway = _braintree.GetGateway();
             Transaction transaction = gateway.Transaction.Find(orderHeader.TransactionId);
@@ -107,6 +107,18 @@ namespace Store.Controllers
             _orderHeaderRepo.Save();
             TempData[WebConstants.Success] = "Order Cancelled Successfully";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public IActionResult UpdateOrderDetails()
+        {
+            OrderHeader orderHeaderFromDb = _orderHeaderRepo.FirstOrDefault(_ => _.Id == OrderViewModel.OrderHeader.Id);
+            orderHeaderFromDb.Email = OrderViewModel.OrderHeader.Email;
+
+            _orderHeaderRepo.Save();
+            TempData[WebConstants.Success] = "Order Details Updated Successfully";
+
+            return RedirectToAction("Details", "Order", new { id = orderHeaderFromDb.Id });
         }
     }
 }
