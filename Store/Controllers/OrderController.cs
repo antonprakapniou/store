@@ -72,5 +72,16 @@ namespace Store.Controllers
             TempData[WebConstants.Success] = "Order is In Process";
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        public IActionResult ShipOrder()
+        {
+            OrderHeader orderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id == OrderViewModel!.OrderHeader!.Id);
+            orderHeader.OrderStatus = WebConstants.StatusShipped;
+            orderHeader.ShippingDate = DateTime.UtcNow;
+            _orderHeaderRepo.Save();
+            TempData[WebConstants.Success] = "Order Shipped Successfully";
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
