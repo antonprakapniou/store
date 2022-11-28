@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Store.Data;
+using Store.Data.Initializer;
 using Store.Data.Repositories;
 using Store.Data.Repositories.IRepositories;
 using Store.Utilities.Braintree;
@@ -34,12 +35,12 @@ builder.Services.AddScoped<IInquiryHeaderRepository,InquiryHeaderRepository>();
 builder.Services.AddScoped<IInquiryDetailsRepository, InquiryDetailsRepository>();
 builder.Services.AddScoped<IOrderHeaderRepository,OrderHeaderRepository>();
 builder.Services.AddScoped<IOrderDetailsRepository,OrderDetailsRepository>();
+//builder.Services.AddScoped<IDbInitializer,DbInitializer>();
 builder.Services.AddAuthentication().AddGoogle(googleOptions =>
 {
     googleOptions.ClientId = googleAuthSection["client_id"]!;
     googleOptions.ClientSecret = googleAuthSection["client_secret"]!;
 });
-
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
@@ -64,6 +65,13 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+//    dbInitializer.Initialize();
+//}
+
 app.UseSession();
 app.MapRazorPages();
 app.MapControllerRoute(
