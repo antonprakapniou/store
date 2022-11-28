@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Braintree;
+using Microsoft.AspNetCore.Mvc;
 using Store.Data;
 using Store.Data.Repositories.IRepositories;
 using Store.Models;
@@ -81,6 +82,30 @@ namespace Store.Controllers
             orderHeader.ShippingDate = DateTime.UtcNow;
             _orderHeaderRepo.Save();
             TempData[WebConstants.Success] = "Order Shipped Successfully";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public IActionResult CancelOrder()
+        {
+            OrderHeader orderHeader = _orderHeaderRepo.FirstOrDefault(_ => _.Id == OrderViewModel.OrderHeader.Id);
+
+            var gateway = _braintree.GetGateway();
+            Transaction transaction = gateway.Transaction.Find(orderHeader.TransactionId);
+
+            if (transaction.Status == TransactionStatus.AUTHORIZED || transaction.Status == TransactionStatus.SUBMITTED_FOR_SETTLEMENT)
+            {
+                //no refund
+                Result<Transaction> resultvoid = gateway.Transaction.Void(orderHeader.TransactionId);
+            }
+            else
+            {
+                //refund
+                Result<Transaction> resultRefund = gateway.Transaction.Refund(orderHeader.TransactionId);
+            }
+            orderHeader.OrderStatus = WebConstants.StatusRefunded;
+            _orderHeaderRepo.Save();
+            TempData[WebConstants.Success] = "Order Cancelled Successfully";
             return RedirectToAction(nameof(Index));
         }
     }
