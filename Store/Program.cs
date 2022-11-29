@@ -60,11 +60,23 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+#region middleware
+
+//app.UseWelcomePage();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
+app.MapRazorPages();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+#endregion
+
+app.Run();
 
 //using (var scope = app.Services.CreateScope())
 //{
@@ -72,10 +84,3 @@ app.UseAuthorization();
 //    dbInitializer.Initialize();
 //}
 
-app.UseSession();
-app.MapRazorPages();
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.Run();
